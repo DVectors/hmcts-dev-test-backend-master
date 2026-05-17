@@ -10,10 +10,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import uk.gov.hmcts.reform.dev.models.TaskModel;
 import uk.gov.hmcts.reform.dev.models.enums.TaskStatus;
+import uk.gov.hmcts.reform.dev.services.interfaces.TaskService;
 
 @RestController
 @RequestMapping("/tasks")
 public class TaskController {
+    private final TaskService taskService;
+
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
     @GetMapping(produces = "application/json")
     public ResponseEntity<String> getAllTasks() {
         return ok("This endpoint will return a list of tasks associated with the case.");
@@ -23,4 +30,12 @@ public class TaskController {
     public ResponseEntity<TaskModel> getTaskById(@PathVariable("id") Integer id) {
         return ok(new TaskModel(id, "Task Name", "Task Description", TaskStatus.IN_PROGRESS, "Task Assignee"));
     }
+
+    @GetMapping("/tasks-test")
+    public ResponseEntity<String> testResponse() {
+        return taskService.testResponse()
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(500).body("An error occurred while fetching the task details."));
+    }
+    
 }
